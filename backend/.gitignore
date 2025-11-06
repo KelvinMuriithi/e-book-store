@@ -1,0 +1,73 @@
+# --- Python / Flask ---
+__pycache__/
+*.py[cod]
+*.so
+*.pyd
+*.pyo
+
+# Virtual envs
+.venv/
+venv/
+env/
+
+# Env/config secrets
+.env
+*.env
+.env.*    # e.g. .env.local, .env.dev
+
+# Instance folder (Flask’s per-deploy config)
+instance/
+
+# Databases & local state
+*.sqlite3
+*.sqlite
+*.db
+*.db-journal
+
+# Logs & runtime
+*.log
+*.pid
+*.seed
+*.tmp
+*.cache/
+
+# Testing / coverage
+.pytest_cache/
+.coverage
+.coverage.*
+htmlcov/
+.tox/
+.nox/
+
+# Type checkers / linters
+.mypy_cache/
+.pytype/
+ruff_cache/
+.pyre/
+
+# Build / packaging
+build/
+dist/
+*.egg-info/
+
+# Alembic (keep migrations, ignore junk)
+alembic.ini  # (track if you prefer; optional)
+alembic/*cache*/
+# Keep your migration scripts:
+!alembic/versions/
+alembic/versions/__pycache__/
+
+# Uploads or user-generated files
+uploads/
+media/
+
+# Editors / OS
+.DS_Store
+Thumbs.db
+.idea/
+.vscode/*
+!.vscode/settings.json
+*.swp
+
+# Pyenv
+.python-version

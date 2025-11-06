@@ -1,0 +1,30 @@
+import {BrowserRouter, Routes, Route, Link} from "react-router-dom";
+import { useEffect, useState } from "react";
+import BookDetail from "./pages/BookDetail";
+import Browse from "./pages/Browse";
+
+function App() {
+  const [status, setStatus] = useState("checking…");
+  useEffect(() => {
+    fetch("/api/health").then(r => r.json()).then(d => setStatus(d.status)).catch(()=>setStatus("error"));
+  }, []);
+  return (
+    <div className="min-h-screen p-8">
+      <h1 className="text-3xl font-bold">E-Book Store</h1>
+      <p className="mt-2">Backend status: {status}</p>
+      <BrowserRouter>
+      <header className="p-4 border-b flex gap-4">
+        <Link to="/" className="font-bold">E-Book store</Link>
+        <Link to="/books">Browse</Link>
+      </header>
+      <Routes>
+        <Route path="/" element={<div className="p-6">Home</div>}></Route>
+        <Route path="/books" element={<Browse/>}/>
+        <Route path="/books/:id" element={<BookDetail/>}/>
+        <Route path="*" element={<div className="p-6">Not found</div>}/>
+      </Routes>
+      </BrowserRouter>
+    </div>
+  );
+}
+export default App;
