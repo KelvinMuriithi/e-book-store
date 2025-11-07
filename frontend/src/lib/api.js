@@ -16,3 +16,25 @@ export async function fetchBook(id){
     if(!res.ok) throw new Error(`Failed to fetch book (${res.status})`)
     return res.json()
 }
+
+export async function createBook(data){
+    const res = await fetch(`${API_BASE}/books`, {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify(data),
+    });
+    const json = await res.json().catch(() => ({})); 
+    if(!res.ok) throw new Error(json.error `Failed to create book (${res.status})`);
+    return json
+}
+
+export async function editBook(id, data){
+    const res = await fetch(`${API_BASE}/books/${id}`, {
+        method: "PUT",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify(data),
+    });
+    const json = await res.json().catch(() => ({})); 
+    if(!res.ok) throw new Error(json.error || `Failed to edit book (${res.status})`);
+    return json
+}

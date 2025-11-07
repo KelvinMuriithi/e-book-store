@@ -12,7 +12,7 @@ export default function Browse() {
     setErr("");
     fetchBooks({ q, sort })
         .then((d) =>{
-            console.log(d)
+            // console.log(d)
             setData(d)
         })
       .catch((e) => setErr(e.message));
@@ -39,13 +39,13 @@ export default function Browse() {
         </select>
       </div>
 
-      <pre className="text-xs bg-gray-50 p-2 border rounded overflow-auto">
+      {/* <pre className="text-xs bg-gray-50 p-2 border rounded overflow-auto">
         {JSON.stringify(
           { err, count: data.items?.length, sample: data.items?.[0] },
           null,
           2
         )}
-      </pre>
+      </pre> */}
 
       {err && <div className="text-red-600">Error: {err}</div>}
       {data.items.length === 0 && !err && <div>No books found</div>}
@@ -54,7 +54,7 @@ export default function Browse() {
         {(data.items?? []).map((b) => (
           <Link
             key={b.id}
-            href={`/books/${b.id}`}
+            to={`/books/${b.id}`}
             className="border rounded p-3 hover:shadow block"
           >
             <div className="aspect-[3/4] bg-gray-100 mb-2 overflow-hidden">
@@ -69,6 +69,7 @@ export default function Browse() {
             <div className="font-semibold line-clamp-2">{b.title} </div>
             <div className="text-sm text-gray-500">{b.author}</div>
             <div className="text-sm mt-1">${Number(b.price).toFixed(2)}</div>
+          
           </Link>
         ))}
       </div>

@@ -67,7 +67,7 @@ def list_books():
         })
 
         
-@bp.get("/<int:book_id>")
+@bp.route("/<int:book_id>", methods=["GET"])
 def get_book(book_id):
     with SessionLocal() as session:
         book = session.get(Book, book_id)
@@ -75,9 +75,9 @@ def get_book(book_id):
             abort(404, description="Book not found")
         return jsonify(row_to_dict(book))
     
-@bp.post("/")
+@bp.route("", methods=["POST"])
 def create_book():
-    data = request.json(force=True)
+    data = request.get_json(force=True)
     required_fields = ["title", "author", "price", "isbn"]
     if any(field not in data for field in required_fields):
         abort(400, description="Missing required fields")

@@ -1,6 +1,6 @@
 # app.py
 import os
-from flask import Flask, jsonify
+from flask import Flask, jsonify, send_from_directory
 from flask_cors import CORS
 # If you ever need create_all for a one-off local bootstrap, you can
 # temporarily uncomment the two lines below.
@@ -22,6 +22,11 @@ def create_app() -> Flask:
     # Prefix your blueprint so routes live under /api/books/...
     app.register_blueprint(books_bp, url_prefix="/api/books")
     app.register_blueprint(dev_bp) 
+    
+    UPLOAD_FOLDER = os.path.abspath(os.path.join(os.path.dirname(__file__), "uploads"))
+    @app.route("/uploads/<path:filename>")
+    def uploaded_file(filename):
+        return send_from_directory(UPLOAD_FOLDER, filename)
 
     @app.get("/api/health")
     def health():

@@ -14,7 +14,7 @@ export default function BookDetail() {
     setB(null);
 
     // Optional debug
-    // console.log("Fetching book id:", id);
+     console.log("Fetching book id:", id);
 
     fetchBook(id)
       .then((data) => {
@@ -57,6 +57,11 @@ export default function BookDetail() {
         <div className="mt-4 text-2xl font-semibold">
           ${Number(b.price).toFixed(2)}
         </div>
+          <div className="mt-6 flex gap-2">
+              <Link to="/books" className="px-3 py-2 rounded border">Back</Link>
+              <Link to={`/admin/books/${b.id}/edit`}  className="px-3 py-2 rounded border">Edit book</Link>
+              
+            </div>
         <div className="mt-4 flex gap-2">
           <button className="px-4 py-2 rounded bg-black text-white">Read Online</button>
           <button className="px-4 py-2 rounded border">Download</button>
