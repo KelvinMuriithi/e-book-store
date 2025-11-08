@@ -2,6 +2,8 @@ from flask import Blueprint, jsonify, request, abort
 from sqlalchemy import or_, desc, asc
 from db import SessionLocal
 from models.book import Book
+from models.user import UserRole
+from auth import require_role, get_current_user
 
 bp = Blueprint("books", __name__, url_prefix="/api/books")
 
@@ -76,6 +78,7 @@ def get_book(book_id):
         return jsonify(row_to_dict(book))
     
 @bp.route("", methods=["POST"])
+@require_role(UserRole.author, UserRole.admin)
 def create_book():
     data = request.get_json(force=True)
     required_fields = ["title", "author", "price", "isbn"]
@@ -97,6 +100,7 @@ def create_book():
     
     
 @bp.route("/<int:book_id>", methods=["PATCH"])
+@require_role(UserRole.author, UserRole.admin)
 def update_book(book_id):
     data = request.get_json(force=True, silent=False)
     if data is None:
@@ -126,6 +130,7 @@ def update_book(book_id):
         return jsonify(row_to_dict(book)), 200
     
 @bp.route("/<int:book_id>", methods=["DELETE"])
+@require_role(UserRole.author, UserRole.admin)
 def delete_book(book_id):
     with SessionLocal() as session:
         book = session.get(Book, book_id)

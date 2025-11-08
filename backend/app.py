@@ -9,6 +9,8 @@ from flask_cors import CORS
 from api.books import bp as books_bp
 from api.dev import bp as dev_bp
 from db import engine
+from api.auth import bp as auth_bp
+from api.dev_user import bp as dev_user_bp
 
 def create_app() -> Flask:
     app = Flask(__name__)
@@ -22,6 +24,8 @@ def create_app() -> Flask:
     # Prefix your blueprint so routes live under /api/books/...
     app.register_blueprint(books_bp, url_prefix="/api/books")
     app.register_blueprint(dev_bp) 
+    app.register_blueprint(auth_bp, url_prefix= "/api/auth")
+    app.register_blueprint(dev_user_bp,  url_prefix="/api/dev-user")
     
     UPLOAD_FOLDER = os.path.abspath(os.path.join(os.path.dirname(__file__), "uploads"))
     @app.route("/uploads/<path:filename>")

@@ -1,12 +1,15 @@
 import { useEffect, useState } from "react";
 import { useParams, Link, useNavigate } from "react-router-dom";
-import { deleteBook, fetchBook } from "../lib/api";
+import { auth, deleteBook, fetchBook } from "../lib/api";
 
 export default function BookDetail() {
   const { id } = useParams();               // string like "3"
   const [b, setB] = useState(null);
   const [err, setErr] = useState("");
   const nav = useNavigate();
+  const [me, setMe] =useState(null)
+
+  useEffect(()=>{auth.me().then(({user})=>setMe(user)).catch(()=>setMe(null))}, [])
 
   useEffect(() => {
     if (!id) return;                        // guard if route is weird
@@ -64,8 +67,24 @@ export default function BookDetail() {
               
             </div>
         <div className="mt-4 flex gap-2">
-          <button className="px-4 py-2 rounded bg-black text-white">Read Online</button>
-          <button className="px-4 py-2 rounded border">Download</button>
+          <button
+          onClick={()=>{
+            if(!requireLogin("read")) return;
+            //check active subscription for reading online
+            nav(`/readers/${b.id}`)
+          }}
+          className="px-4 py-2 rounded bg-black text-white">
+            Read Online
+          </button>
+          <button
+          onClick={()=>{
+            if(!requireLogin("download")) return
+            //check active subscription for download or make the payment
+            alert("Subscribe to download.")
+          }}
+          className="px-4 py-2 rounded border">
+            Download
+            </button>
           <button onClick={async ()=>{
             if(!confirm("Are you sure you want to delete this book?")) return;
             try{await deleteBook(b.id); nav("/books")}

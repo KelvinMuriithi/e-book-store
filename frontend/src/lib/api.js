@@ -1,4 +1,39 @@
 const API_BASE = "/api"; 
+
+async function jfetch(url, opts = {}) {
+    const res = await fetch(url, {credentials:"include", ...opts})
+    const json = await res.json().catch(()=>({}))
+    if (!res.ok) throw new Error (json.Error || `HTTP ${res.status}`)
+    return json
+}
+
+export const auth = {
+    async register({email, password, role="customer"}){
+        return jfetch(`${API_BASE}/auth/register`,{
+            method:"POST",
+            headers: {"Content-Type": "application/json"},
+            body:JSON.stringify({email, password, role})
+        })
+    }, 
+
+    async login({email, password}){
+        return jfetch(`${API_BASE}/auth/login`, {
+            method:"POST",
+            headers:{"Content-Type": "application/json"},
+            body:JSON.stringify({email, password})
+        })
+    },
+
+    async logout(){
+        return jfetch(`${API_BASE}/auth/logout`,
+            {method:"POST"})
+    },
+
+    async me(){
+        return jfetch(`${API_BASE}/auth/me`)
+    }
+}
+
 export async function fetchBooks(params = {}) {
   const base = { q: "", sort: "new", page: 1, per_page: 12, ...params };
   const qs = new URLSearchParams(base).toString();
@@ -18,7 +53,7 @@ export async function fetchBook(id){
 }
 
 export async function createBook(data){
-    const res = await fetch(`${API_BASE}/books`, {
+    const res = await jfetch(`${API_BASE}/books`, {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify(data),
@@ -29,7 +64,7 @@ export async function createBook(data){
 }
 
 export async function editBook(id, data){
-    const res = await fetch(`${API_BASE}/books/${id}`, {
+    const res = await jfetch(`${API_BASE}/books/${id}`, {
         method: "PATCH",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify(data),
@@ -40,7 +75,7 @@ export async function editBook(id, data){
 }
 
 export async function deleteBook(id){
-    const res = await fetch(`${API_BASE}/books/${id}`, {
+    const res = await jfetch(`${API_BASE}/books/${id}`, {
         method: "DELETE",
     });
     if(res.status ===404) throw new Error("Book not found")
