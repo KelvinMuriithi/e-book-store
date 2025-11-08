@@ -30,11 +30,20 @@ export async function createBook(data){
 
 export async function editBook(id, data){
     const res = await fetch(`${API_BASE}/books/${id}`, {
-        method: "PUT",
+        method: "PATCH",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify(data),
     });
     const json = await res.json().catch(() => ({})); 
     if(!res.ok) throw new Error(json.error || `Failed to edit book (${res.status})`);
     return json
+}
+
+export async function deleteBook(id){
+    const res = await fetch(`${API_BASE}/books/${id}`, {
+        method: "DELETE",
+    });
+    if(res.status ===404) throw new Error("Book not found")
+    if(!res.ok) throw new Error(`Failed to delete book (${res.status})`);
+    return true
 }

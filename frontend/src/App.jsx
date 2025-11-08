@@ -3,7 +3,7 @@ import { useEffect, useState } from "react";
 import BookDetail from "./pages/BookDetail";
 import Browse from "./pages/Browse";
 import NewBook from "./pages/NewBook";
-import EditBook from "./pages/editBook";
+import EditBook from "./pages/EditBook";
 function App() {
   const [status, setStatus] = useState("checking…");
   useEffect(() => {
@@ -34,7 +34,7 @@ function App() {
           <Route path="/books" element={<Browse />} />
           <Route path="/books/:id" element={<BookDetail />} />
           <Route path="/admin/new-book" element={<NewBook />} />
-          <Route path="/admin/edit-book/:id" element={<EditBook />} /> 
+          <Route path="/admin/books/:id/edit" element={<EditBook />} /> 
           <Route path="*" element={<div className="p-6">Not found</div>} />
         </Routes>
       </BrowserRouter>

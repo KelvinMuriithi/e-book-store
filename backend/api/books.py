@@ -95,9 +95,12 @@ def create_book():
         session.refresh(book)
         return jsonify(row_to_dict(book)), 201
     
-@bp.put("/<int:book_id>")
+    
+@bp.route("/<int:book_id>", methods=["PATCH"])
 def update_book(book_id):
-    data = request.json(force=True)
+    data = request.get_json(force=True, silent=False)
+    if data is None:
+        return {"error": "Invalid JSON data"}, 400
     with SessionLocal() as session:
         book = session.get(Book, book_id)
         if not book:
@@ -105,12 +108,24 @@ def update_book(book_id):
         
         for field in ["title", "author", "description", "price", "isbn", "cover_image"]:
             if field in data:
-                setattr(book, field, data[field].strip() if isinstance(data[field], str) else data[field])
+                val = data[field]
+                if isinstance(val, str):
+                    val = val.strip()
+                if field == "price" and val is not None:
+                    try:
+                        val = float(val)
+                    except ValueError:
+                        return {"error": "Price must be a number"}, 400
+                setattr(book, field, val)
         
-        session.commit()
-        return jsonify(row_to_dict(book))
+        try:
+            session.commit()
+        except IntegrityError as e:
+            session.rollback()
+            return {"error" :"ISBN already exists"}, 409
+        return jsonify(row_to_dict(book)), 200
     
-@bp.delete("/<int:book_id>")
+@bp.route("/<int:book_id>", methods=["DELETE"])
 def delete_book(book_id):
     with SessionLocal() as session:
         book = session.get(Book, book_id)

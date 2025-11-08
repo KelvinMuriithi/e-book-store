@@ -1,11 +1,12 @@
 import { useEffect, useState } from "react";
-import { useParams, Link } from "react-router-dom";
-import { fetchBook } from "../lib/api";
+import { useParams, Link, useNavigate } from "react-router-dom";
+import { deleteBook, fetchBook } from "../lib/api";
 
 export default function BookDetail() {
   const { id } = useParams();               // string like "3"
   const [b, setB] = useState(null);
   const [err, setErr] = useState("");
+  const nav = useNavigate();
 
   useEffect(() => {
     if (!id) return;                        // guard if route is weird
@@ -65,6 +66,11 @@ export default function BookDetail() {
         <div className="mt-4 flex gap-2">
           <button className="px-4 py-2 rounded bg-black text-white">Read Online</button>
           <button className="px-4 py-2 rounded border">Download</button>
+          <button onClick={async ()=>{
+            if(!confirm("Are you sure you want to delete this book?")) return;
+            try{await deleteBook(b.id); nav("/books")}
+            catch (e) {alert(e.message)}
+          }} className="px-3 py-2 rounded bg-red-600 text-white">Delete book</button>
         </div>
       </div>
     </div>
