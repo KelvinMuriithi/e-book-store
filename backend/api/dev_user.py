@@ -27,7 +27,7 @@ def seed_users():
     seed = [
         ("admin@example.com",   "admin123",  UserRole.admin),
         ("author@example.com",  "author123", UserRole.author),
-        ("customer@example.com","cust123",   UserRole.customer),
+        ("customer@example.com", "cust123",   UserRole.customer),
     ]
     with SessionLocal() as s:
         users = []

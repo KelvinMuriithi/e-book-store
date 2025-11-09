@@ -1,7 +1,9 @@
 from flask import Blueprint, jsonify, request, make_response
 from db import SessionLocal
 from models.user import UserRole, User
-from auth import hash_pw, verify_pw, sign_jwt, get_current_user
+from auth import hash_pw, verify_pw, sign_jwt, get_current_user, needs_rehash
+import os
+import traceback
 
 bp = Blueprint("auth", __name__, url_prefix="/api/auth")
 
@@ -41,23 +43,42 @@ def register():
         resp.set_cookie("auth", token, **COOKIES_FLAGS)
         return resp, 201
     
-@bp.route("/login", methods=["POST"])
+@bp.post("/login")
 def login():
-    data = request.get_json(force=True, silent=False)
-    email = data.get("email", "").strip().lower()
-    password = data.get("password") or ""
-    if not email or not password:
-        return {"error": "Email and password are required"}, 400
-    
-    with SessionLocal() as session:
-        user = session.query(User).filter_by(email=email).first()
-        if not user or not verify_pw(password, user.password_hash):
-            return {"error": "Invalid email or password"}, 401
-        
-        token = sign_jwt({"uid": user.id, "role": user.role.value})
-        resp = make_response({"id": user.id, "email": user.email, "role": user.role.value})
-        resp.set_cookie("auth", token, **COOKIES_FLAGS)
-        return resp, 200
+    try:
+        data = request.get_json(force=True, silent=False)
+        email = (data.get("email") or "").strip().lower()
+        password = data.get("password") or ""
+        if not email or not password:
+            return {"error": "Email and password required"}, 400
+
+        with SessionLocal() as s:
+            u = s.query(User).filter_by(email=email).first()
+            if not u:
+                return {"error": "Invalid credentials"}, 401
+
+            if not verify_pw(password, u.password_hash):
+                return {"error": "Invalid credentials"}, 401
+
+            # Optional: rehash if policy changed
+            try:
+                if needs_rehash(u.password_hash):
+                    u.password_hash = hash_pw(password)
+                    s.commit()
+            except Exception:
+                # Rehash problems shouldn't 500 the whole login
+                s.rollback()
+
+            role_value = getattr(u.role, "value", u.role)  # handles Enum or plain string
+            token = sign_jwt({"uid": u.id, "role": role_value})
+
+            resp = make_response({"id": u.id, "email": u.email, "role": role_value})
+            resp.set_cookie("auth", token, **COOKIES_FLAGS)
+            return resp, 200
+    except Exception as e:
+        print("LOGIN ERROR:", repr(e))
+        traceback.print_exc()
+        return {"error": "Internal server error"}, 500
     
 @bp.route("/logout", methods=["POST"])
 def logout():

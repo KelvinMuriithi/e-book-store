@@ -1,8 +1,10 @@
 import { useState, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
 import { auth } from "../lib/api";
+import { useAuth } from "./AuthContext";
 
 export default function Login() {
+  const { setUser } = useAuth();
   const nav = useNavigate();
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
@@ -11,8 +13,17 @@ export default function Login() {
   async function onSubmit(e) {
     e.preventDefault();
     setErr("");
+    const emailTrimmed = email.trim();
+    const passwordTrimmed = password.trim();
+    if (!emailTrimmed || !passwordTrimmed) {
+      setErr("Email and password are required");
+      return;
+    }
     try {
+        const me = await auth.login({ email: emailTrimmed, password: passwordTrimmed });
+        
       await auth.login({ email, password });
+      setUser(me);
       nav("/books");
     } catch (e) {
       setErr(e.message);
